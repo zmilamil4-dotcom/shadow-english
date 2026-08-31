@@ -1,7 +1,7 @@
-name: shadow_english
-description: English learning app using Shadowing technique.
+name: echo_speak
+description: EchoSpeak - practice English speaking and pronunciation.
 publish_to: 'none'
-version: 0.0.1+1
+version: 0.1.0+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -9,6 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
+  flutter_tts: ^4.0.2
+  record: ^5.1.2
+  permission_handler: ^11.3.1
+  path_provider: ^2.1.3
 
 dev_dependencies:
   flutter_test:
