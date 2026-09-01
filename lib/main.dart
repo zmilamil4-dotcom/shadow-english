@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/splash_screen.dart';
-import 'state/app_state_provider.dart';
-import 'state/settings_provider.dart';
-import 'utils/theme.dart';
+import 'splash_screen.dart';
+import 'app_state_provider.dart';
+import 'settings_provider.dart';
+import 'app_theme.dart';
 
 void main() {
   runApp(const EchoSpeakApp());
