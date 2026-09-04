@@ -72,7 +72,7 @@ class HomeTab extends StatelessWidget {
             const SizedBox(height: 24),
 
             // =========================
-            // Daily Goal Card
+            // Daily Goal
             // =========================
 
             Container(
@@ -99,17 +99,17 @@ class HomeTab extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.local_fire_department,
                         color: Colors.white,
                         size: 28,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
-                        'Daily Goal',
-                        style: TextStyle(
+                        AppStrings.get('daily_goal', locale),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -120,9 +120,9 @@ class HomeTab extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  const Text(
-                    'Keep your English practice going!',
-                    style: TextStyle(
+                  Text(
+                    AppStrings.get('daily_goal_sub', locale),
+                    style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 14,
                     ),
@@ -141,9 +141,9 @@ class HomeTab extends StatelessWidget {
 
                   const SizedBox(height: 10),
 
-                  const Text(
-                    '7 / 10 minutes',
-                    style: TextStyle(
+                  Text(
+                    AppStrings.get('daily_goal_progress', locale),
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
@@ -159,73 +159,76 @@ class HomeTab extends StatelessWidget {
             // =========================
 
             _SectionTitle(
-              title: 'Continue Learning',
+              title: AppStrings.get('continue_learning', locale),
               icon: Icons.school_outlined,
             ),
 
             const SizedBox(height: 12),
 
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: theme.cardTheme.color ??
-                    colors.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 58,
-                    height: 58,
-                    decoration: BoxDecoration(
-                      color: colors.primary.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(16),
+            GestureDetector(
+              onTap: () => appState.setTab(1),
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: theme.cardTheme.color ??
+                      colors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: colors.primary.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(
+                        Icons.play_arrow_rounded,
+                        color: colors.primary,
+                        size: 32,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.play_arrow_rounded,
+
+                    const SizedBox(width: 14),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppStrings.get('lesson_01', locale),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            AppStrings.get('basic_conversation', locale),
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            AppStrings.get('start_speaking_sub', locale),
+                            style: const TextStyle(
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 18,
                       color: colors.primary,
-                      size: 32,
                     ),
-                  ),
-
-                  const SizedBox(width: 14),
-
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Lesson 01',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Basic Conversation',
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Start your speaking practice',
-                          style: TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 18,
-                    color: colors.primary,
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -236,7 +239,7 @@ class HomeTab extends StatelessWidget {
             // =========================
 
             _SectionTitle(
-              title: 'Speaking Practice',
+              title: AppStrings.get('speaking_practice', locale),
               icon: Icons.mic_none_rounded,
             ),
 
@@ -277,21 +280,21 @@ class HomeTab extends StatelessWidget {
 
                     const SizedBox(width: 16),
 
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Practice your English',
-                            style: TextStyle(
+                            AppStrings.get('practice_english', locale),
+                            style: const TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text(
-                            'Listen • Speak • Improve',
-                            style: TextStyle(
+                            AppStrings.get('listen_speak_improve', locale),
+                            style: const TextStyle(
                               fontSize: 13,
                             ),
                           ),
@@ -299,7 +302,7 @@ class HomeTab extends StatelessWidget {
                       ),
                     ),
 
-                    Icon(
+                    const Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 18,
                     ),
@@ -315,7 +318,7 @@ class HomeTab extends StatelessWidget {
             // =========================
 
             _SectionTitle(
-              title: 'AI Tutor',
+              title: AppStrings.get('ai_tutor', locale),
               icon: Icons.auto_awesome,
             ),
 
@@ -331,28 +334,29 @@ class HomeTab extends StatelessWidget {
                   color: colors.primary.withOpacity(0.15),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.smart_toy_outlined,
                     size: 34,
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
+
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Your AI English Tutor',
-                          style: TextStyle(
+                          AppStrings.get('ai_tutor_title', locale),
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
-                          'Coming soon in EchoSpeak',
-                          style: TextStyle(
+                          AppStrings.get('ai_tutor_coming_soon', locale),
+                          style: const TextStyle(
                             fontSize: 12,
                           ),
                         ),
