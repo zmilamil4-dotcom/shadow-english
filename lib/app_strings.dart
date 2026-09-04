@@ -43,7 +43,6 @@ class AppStrings {
       'ok': 'OK',
       'open_settings': 'Open Settings',
 
-      // Home
       'daily_goal': 'Daily Goal',
       'daily_goal_sub': 'Keep your English practice going!',
       'daily_goal_progress': '7 / 10 minutes',
@@ -100,7 +99,6 @@ class AppStrings {
       'ok': 'حسنًا',
       'open_settings': 'فتح الإعدادات',
 
-      // Home
       'daily_goal': 'الهدف اليومي',
       'daily_goal_sub': 'واصل تدريبك على اللغة الإنجليزية!',
       'daily_goal_progress': '7 / 10 دقائق',
@@ -159,7 +157,6 @@ class AppStrings {
       'ok': 'OK',
       'open_settings': 'Ouvrir les paramètres',
 
-      // Home
       'daily_goal': 'Objectif quotidien',
       'daily_goal_sub': 'Continuez votre pratique de l’anglais !',
       'daily_goal_progress': '7 / 10 minutes',
@@ -218,7 +215,6 @@ class AppStrings {
       'ok': 'Aceptar',
       'open_settings': 'Abrir ajustes',
 
-      // Home
       'daily_goal': 'Objetivo diario',
       'daily_goal_sub': '¡Sigue practicando inglés!',
       'daily_goal_progress': '7 / 10 minutos',
@@ -277,7 +273,6 @@ class AppStrings {
       'ok': 'OK',
       'open_settings': 'Einstellungen öffnen',
 
-      // Home
       'daily_goal': 'Tagesziel',
       'daily_goal_sub': 'Bleib beim Englischlernen dran!',
       'daily_goal_progress': '7 / 10 Minuten',
@@ -337,7 +332,6 @@ class AppStrings {
       'ok': 'OK',
       'open_settings': 'Apri impostazioni',
 
-      // Home
       'daily_goal': 'Obiettivo giornaliero',
       'daily_goal_sub': 'Continua a praticare l’inglese!',
       'daily_goal_progress': '7 / 10 minuti',
@@ -396,7 +390,6 @@ class AppStrings {
       'ok': 'Tamam',
       'open_settings': 'Ayarları Aç',
 
-      // Home
       'daily_goal': 'Günlük Hedef',
       'daily_goal_sub': 'İngilizce pratiğine devam et!',
       'daily_goal_progress': '7 / 10 dakika',
@@ -455,7 +448,6 @@ class AppStrings {
       'ok': 'OK',
       'open_settings': 'Abrir configurações',
 
-      // Home
       'daily_goal': 'Meta diária',
       'daily_goal_sub': 'Continue praticando inglês!',
       'daily_goal_progress': '7 / 10 minutos',
@@ -514,7 +506,6 @@ class AppStrings {
       'ok': 'OK',
       'open_settings': '設定を開く',
 
-      // Home
       'daily_goal': '毎日の目標',
       'daily_goal_sub': '英語の練習を続けましょう！',
       'daily_goal_progress': '7 / 10分',
@@ -573,6 +564,8 @@ class AppStrings {
       'ok': '확인',
       'open_settings': '설정 열기',
 
-      // Home
       'daily_goal': '일일 목표',
-    
+      'daily_goal_sub': '영어 연습을 계속해 보세요!',
+      'daily_goal_progress': '7 / 10분',
+      'continue_learning': '학습 계속하기',
+      'lesson_01': '레슨 
