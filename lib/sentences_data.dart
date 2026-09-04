@@ -7,6 +7,7 @@ const List<SentenceModel> sentencesData = [
     lessonId: 1,
     text: 'Hello, how are you?',
     translations: {
+      'en': 'Hello, how are you?',
       'ar': 'مرحبًا، كيف حالك؟',
       'fr': 'Bonjour, comment allez-vous ?',
       'es': 'Hola, ¿cómo estás?',
@@ -25,6 +26,7 @@ const List<SentenceModel> sentencesData = [
     lessonId: 1,
     text: 'My name is...',
     translations: {
+      'en': 'My name is...',
       'ar': 'اسمي هو...',
       'fr': 'Je m’appelle...',
       'es': 'Me llamo...',
@@ -43,6 +45,7 @@ const List<SentenceModel> sentencesData = [
     lessonId: 1,
     text: 'I like learning English.',
     translations: {
+      'en': 'I like learning English.',
       'ar': 'أحب تعلم اللغة الإنجليزية.',
       'fr': 'J’aime apprendre l’anglais.',
       'es': 'Me gusta aprender inglés.',
@@ -62,6 +65,7 @@ const List<SentenceModel> sentencesData = [
     lessonId: 2,
     text: 'What are you doing?',
     translations: {
+      'en': 'What are you doing?',
       'ar': 'ماذا تفعل؟',
       'fr': 'Qu’est-ce que tu fais ?',
       'es': '¿Qué estás haciendo?',
@@ -80,6 +84,7 @@ const List<SentenceModel> sentencesData = [
     lessonId: 2,
     text: 'Have a nice day.',
     translations: {
+      'en': 'Have a nice day.',
       'ar': 'أتمنى لك يومًا سعيدًا.',
       'fr': 'Passez une bonne journée.',
       'es': 'Que tengas un buen día.',
