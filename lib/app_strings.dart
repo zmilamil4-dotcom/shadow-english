@@ -559,4 +559,18 @@ class AppStrings {
       'daily_goal_progress': '7 / 10분',
       'continue_learning': '학습 계속하기',
       'lesson_01': '레슨 01',
-     
+      'basic_conversation': '기초 회화',
+      'start_speaking_sub': '말하기 연습을 시작하세요',
+      'speaking_practice': '말하기 연습',
+      'practice_english': '영어를 연습하세요',
+      'listen_speak_improve': '듣기 • 말하기 • 향상',
+      'ai_tutor': 'AI 튜터',
+      'ai_tutor_title': '당신의 AI 영어 튜터',
+      'ai_tutor_coming_soon': 'EchoSpeak에 곧 출시 예정',
+    },
+  };
+
+  static String get(String key, String locale) {
+    return _strings[locale]?[key] ?? _strings['en']![key] ?? key;
+  }
+}
