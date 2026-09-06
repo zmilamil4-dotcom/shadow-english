@@ -1,31 +1,33 @@
 import 'package:flutter/material.dart';
 
 class AppStateProvider extends ChangeNotifier {
-  int tabIndex = 0;
+  int tabIndex = 0; // 0 Home, 1 Learn, 2 Practice, 3 Progress, 4 Profile
   int sentenceIndex = 0;
-  bool lastAttemptSuccess = false;
+  int totalTrained = 0;
+  int streakDays = 1;
 
   void setTab(int index) {
     tabIndex = index;
     notifyListeners();
   }
 
-  void completeRecording() {
-    lastAttemptSuccess = true;
+  void goToPractice() {
     tabIndex = 2;
     notifyListeners();
   }
 
   void nextSentence(int totalSentences) {
     sentenceIndex = (sentenceIndex + 1) % totalSentences;
-    lastAttemptSuccess = false;
-    tabIndex = 1;
     notifyListeners();
   }
 
-  void tryAgain() {
-    lastAttemptSuccess = false;
-    tabIndex = 1;
+  void previousSentence(int totalSentences) {
+    sentenceIndex = (sentenceIndex - 1 + totalSentences) % totalSentences;
+    notifyListeners();
+  }
+
+  void recordCompleted() {
+    totalTrained++;
     notifyListeners();
   }
 }
