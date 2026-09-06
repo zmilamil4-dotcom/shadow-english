@@ -1,151 +1,90 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // =========================
-  // EchoSpeak Colors
-  // =========================
+  // Kept for splash_screen.dart compatibility
+  static const Color primaryColor = Color(0xFF8B5CF6);
 
-  static const Color primaryColor = Color(0xFF6C63FF);
-  static const Color secondaryColor = Color(0xFF8B5CF6);
-  static const Color accentColor = Color(0xFF38BDF8);
+  static const Color background = Color(0xFF0B0B1F);
+  static const Color surface = Color(0xFF15162E);
+  static const Color surfaceLight = Color(0xFF1E1F3B);
+  static const Color accentPurple = Color(0xFF8B5CF6);
+  static const Color accentBlue = Color(0xFF3B82F6);
+  static const Color accentPink = Color(0xFFEC4899);
+  static const Color textPrimary = Color(0xFFF5F5FF);
+  static const Color textSecondary = Color(0xFFA0A0C5);
+  static const Color success = Color(0xFF22C55E);
+  static const Color warning = Color(0xFFF59E0B);
 
-  static const Color darkBackground = Color(0xFF0B1020);
-  static const Color darkCard = Color(0xFF151B2E);
-
-  static const Color lightBackground = Color(0xFFF6F7FF);
-
-  // =========================
-  // Light Theme
-  // =========================
-
-  static ThemeData light = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryColor,
-      brightness: Brightness.light,
-    ),
-
-    scaffoldBackgroundColor: lightBackground,
-
-    appBarTheme: const AppBarTheme(
-      centerTitle: false,
-      elevation: 0,
-      backgroundColor: lightBackground,
-      foregroundColor: Color(0xFF111827),
-    ),
-
-    cardTheme: CardThemeData(
-      elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-    ),
-
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 56),
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        textStyle: const TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    ),
-
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: primaryColor,
-          width: 2,
-        ),
-      ),
-    ),
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [accentPurple, accentBlue],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
   );
 
-  // =========================
-  // Dark Theme
-  // =========================
+  static const LinearGradient pinkGradient = LinearGradient(
+    colors: [accentPink, accentPurple],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static BoxDecoration cardDecoration({Color? color, double radius = 24}) {
+    return BoxDecoration(
+      color: color ?? surface,
+      borderRadius: BorderRadius.circular(radius),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.35),
+          blurRadius: 16,
+          offset: const Offset(0, 8),
+        ),
+      ],
+    );
+  }
+
+  static BoxDecoration glowDecoration({
+    required LinearGradient gradient,
+    double radius = 24,
+  }) {
+    return BoxDecoration(
+      gradient: gradient,
+      borderRadius: BorderRadius.circular(radius),
+      boxShadow: [
+        BoxShadow(
+          color: accentPurple.withOpacity(0.4),
+          blurRadius: 24,
+          offset: const Offset(0, 10),
+        ),
+      ],
+    );
+  }
 
   static ThemeData dark = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-
+    scaffoldBackgroundColor: background,
+    fontFamily: 'Roboto',
     colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryColor,
+      seedColor: accentPurple,
       brightness: Brightness.dark,
+    ).copyWith(secondary: accentBlue, surface: surface),
+    textTheme: const TextTheme(
+      headlineSmall: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
+      titleLarge: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
+      titleMedium: TextStyle(color: textPrimary, fontWeight: FontWeight.w600),
+      bodyMedium: TextStyle(color: textSecondary),
+      bodyLarge: TextStyle(color: textPrimary),
+      bodySmall: TextStyle(color: textSecondary),
     ),
-
-    scaffoldBackgroundColor: darkBackground,
-
-    appBarTheme: const AppBarTheme(
-      centerTitle: false,
-      elevation: 0,
-      backgroundColor: darkBackground,
-      foregroundColor: Colors.white,
-    ),
-
-    cardTheme: CardThemeData(
-      elevation: 0,
-      color: darkCard,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-    ),
-
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 56),
-        backgroundColor: primaryColor,
+        backgroundColor: accentPurple,
         foregroundColor: Colors.white,
+        minimumSize: const Size(double.infinity, 56),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        textStyle: const TextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w600,
-        ),
       ),
     ),
-
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: darkCard,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: const BorderSide(
-          color: accentColor,
-          width: 2,
-        ),
-      ),
-    ),
+    dividerColor: Colors.white12,
   );
 }
