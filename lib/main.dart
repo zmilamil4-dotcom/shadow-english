@@ -22,7 +22,7 @@ class EchoSpeakApp extends StatelessWidget {
       child: MaterialApp(
         title: 'EchoSpeak',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
+        theme: AppTheme.dark,
         home: const SplashScreen(),
       ),
     );
