@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'settings_provider.dart';
 import 'app_strings.dart';
 import 'app_theme.dart';
+import 'lesson_model.dart';
+import 'lesson_repository.dart';
+import 'lesson_screen.dart';
 
 class LearnTab extends StatefulWidget {
   const LearnTab({super.key});
@@ -15,14 +18,6 @@ class _LearnTabState extends State<LearnTab> {
   int _tabIndex = 0;
   String _level = 'A1';
 
-  final List<Map<String, dynamic>> _lessons = const [
-    {'icon': Icons.eco_rounded, 'color': Color(0xFF22C55E), 'title': 'Beginner', 'subtitle': 'Start your journey', 'done': 12, 'total': 30},
-    {'icon': Icons.local_cafe_rounded, 'color': Color(0xFFF59E0B), 'title': 'Daily Life', 'subtitle': 'Common conversations', 'done': 18, 'total': 30},
-    {'icon': Icons.flight_rounded, 'color': Color(0xFF3B82F6), 'title': 'Travel', 'subtitle': 'Useful words & phrases', 'done': 14, 'total': 30},
-    {'icon': Icons.work_rounded, 'color': Color(0xFF8B5CF6), 'title': 'Business', 'subtitle': 'Professional English', 'done': 10, 'total': 30},
-    {'icon': Icons.record_voice_over_rounded, 'color': Color(0xFFEF4444), 'title': 'Pronunciation', 'subtitle': 'Speak like a native', 'done': 15, 'total': 30},
-  ];
-
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<SettingsProvider>().locale;
@@ -33,6 +28,7 @@ class _LearnTabState extends State<LearnTab> {
       AppStrings.get('grammar', locale),
     ];
     final levels = ['A1', 'A2', 'B1', 'B2', 'C1'];
+    final lessons = LessonRepository.getByLevel(_level);
 
     return SafeArea(
       bottom: false,
@@ -90,61 +86,100 @@ class _LearnTabState extends State<LearnTab> {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 110),
-              itemCount: _lessons.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, i) {
-                final lesson = _lessons[i];
-                final progress = lesson['done'] / lesson['total'];
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: AppTheme.cardDecoration(radius: 20),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: (lesson['color'] as Color).withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(14),
+            child: _tabIndex != 0
+                ? Center(
+                    child: Text(
+                      locale == 'ar' ? 'قريبًا' : 'Coming soon',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  )
+                : lessons.isEmpty
+                    ? Center(
+                        child: Text(
+                          locale == 'ar'
+                              ? 'لا توجد دروس لهذا المستوى بعد'
+                              : 'No lessons for this level yet',
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                        child: Icon(lesson['icon'] as IconData, color: lesson['color'] as Color),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 110),
+                        itemCount: lessons.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, i) {
+                          final lesson = lessons[i];
+                          return _LessonCard(
+                            lesson: lesson,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => LessonScreen(lesson: lesson),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(lesson['title'] as String,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15)),
-                            const SizedBox(height: 2),
-                            Text(lesson['subtitle'] as String,
-                                style: Theme.of(context).textTheme.bodySmall),
-                            const SizedBox(height: 8),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(6),
-                              child: LinearProgressIndicator(
-                                value: progress.toDouble(),
-                                minHeight: 5,
-                                backgroundColor: Colors.white12,
-                                valueColor: AlwaysStoppedAnimation(lesson['color'] as Color),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text('${lesson['done']}/${lesson['total']}',
-                          style: Theme.of(context).textTheme.bodySmall),
-                      const Icon(Icons.chevron_right_rounded, color: Colors.white38),
-                    ],
-                  ),
-                );
-              },
-            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LessonCard extends StatelessWidget {
+  final LessonModel lesson;
+  final VoidCallback onTap;
+
+  const _LessonCard({required this.lesson, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final minutes = (lesson.durationSeconds / 60).ceil();
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: AppTheme.cardDecoration(radius: 20),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.play_arrow_rounded, color: Colors.white),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(lesson.title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15)),
+                  const SizedBox(height: 2),
+                  Text(lesson.description, style: Theme.of(context).textTheme.bodySmall),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(Icons.timer_outlined, size: 14, color: AppTheme.textSecondary),
+                      const SizedBox(width: 4),
+                      Text('$minutes min', style: Theme.of(context).textTheme.bodySmall),
+                      const SizedBox(width: 12),
+                      Icon(Icons.category_outlined, size: 14, color: AppTheme.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(lesson.category, style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: Colors.white38),
+          ],
+        ),
       ),
     );
   }
