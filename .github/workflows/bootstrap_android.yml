@@ -1,0 +1,49 @@
+name: Bootstrap Android Project
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Generate Android platform files (only if missing)
+        run: |
+          if [ ! -d "android" ]; then
+            flutter create --project-name echo_speak --platforms=android .
+          else
+            echo "android/ already exists, skipping"
+          fi
+
+      - name: Generate permanent release keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore echospeak-release.jks \
+            -alias echospeak \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "${{ secrets.KEYSTORE_PASSWORD }}" \
+            -keypass "${{ secrets.KEY_PASSWORD }}" \
+            -dname "CN=EchoSpeak, OU=EchoSpeak, O=EchoSpeak, L=NA, S=NA, C=US"
+
+      - name: Print keystore as base64 (COPY THIS INTO A NEW SECRET)
+        run: |
+          echo "=== COPY EVERYTHING BELOW INTO SECRET KEYSTORE_BASE64 ==="
+          base64 -w0 echospeak-release.jks
+          echo ""
+          echo "=== END ==="
+
+      - name: Commit android/ folder to repo
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add android
+          git commit -m "Add persistent android project files" || echo "nothing to commit"
+          git push
