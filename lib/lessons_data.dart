@@ -1,11 +1,11 @@
 import 'lesson_model.dart';
 
-// Placeholder videos: Creative Commons sample videos (Blender Foundation),
-// safe to use as legal placeholders until real content is added.
+// Placeholder videos from Flutter's own official documentation assets,
+// used purely for testing video_player playback — not English-learning content.
 const String _sampleVideo1 =
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+    'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
 const String _sampleVideo2 =
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
+    'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4';
 
 const List<LessonModel> lessonsData = [
   LessonModel(
