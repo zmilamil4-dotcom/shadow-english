@@ -3,7 +3,7 @@ import 'lesson_model.dart';
 // Placeholder videos: Creative Commons sample videos (Blender Foundation),
 // safe to use as legal placeholders until real content is added.
 const String _sampleVideo1 =
-    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+    'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
 const String _sampleVideo2 =
     'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
 
