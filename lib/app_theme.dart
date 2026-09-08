@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Kept for splash_screen.dart compatibility
+  // ===== Existing — kept exactly as-is for compatibility =====
   static const Color primaryColor = Color(0xFF8B5CF6);
 
   static const Color background = Color(0xFF0B0B1F);
@@ -87,4 +87,77 @@ class AppTheme {
     ),
     dividerColor: Colors.white12,
   );
+
+  // ===== Phase A additions — new tokens for the design system =====
+  static const Color surfaceVariant = Color(0xFF232447);
+  static const Color accentCyan = Color(0xFF22D3EE);
+  static const Color error = Color(0xFFEF4444);
+
+  static const LinearGradient blueCyanGradient = LinearGradient(
+    colors: [accentBlue, accentCyan],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+}
+
+/// Reusable typography scale for the EchoSpeak design system.
+class AppTextStyles {
+  static const TextStyle display = TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    color: AppTheme.textPrimary,
+    letterSpacing: -0.5,
+  );
+  static const TextStyle heading = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: AppTheme.textPrimary,
+  );
+  static const TextStyle title = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppTheme.textPrimary,
+  );
+  static const TextStyle body = TextStyle(
+    fontSize: 15,
+    color: AppTheme.textPrimary,
+  );
+  static const TextStyle bodySecondary = TextStyle(
+    fontSize: 14,
+    color: AppTheme.textSecondary,
+  );
+  static const TextStyle caption = TextStyle(
+    fontSize: 12,
+    color: AppTheme.textSecondary,
+  );
+  static const TextStyle button = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+  );
+  static const TextStyle label = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: AppTheme.textSecondary,
+    letterSpacing: 0.4,
+  );
+}
+
+/// Reusable spacing scale.
+class AppSpacing {
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 16;
+  static const double lg = 24;
+  static const double xl = 32;
+  static const double xxl = 48;
+}
+
+/// Reusable corner-radius scale.
+class AppRadius {
+  static const double sm = 12;
+  static const double md = 16;
+  static const double lg = 20;
+  static const double xl = 28;
+  static const double pill = 100;
 }
