@@ -1,9 +1,15 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'lesson_model.dart';
 import 'recorder_service.dart';
+import 'pronunciation_service.dart';
+import 'tts_service.dart';
+import 'word_details_sheet.dart';
 import 'app_theme.dart';
+
+enum _VideoState { loading, ready, error }
 
 class LessonScreen extends StatefulWidget {
   final LessonModel lesson;
@@ -14,35 +20,73 @@ class LessonScreen extends StatefulWidget {
 }
 
 class _LessonScreenState extends State<LessonScreen> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
+  _VideoState _videoState = _VideoState.loading;
+  String _videoErrorMessage = '';
+
   final RecorderService _recorder = RecorderService();
-  bool _videoReady = false;
+  final PronunciationService _pronunciationService = PronunciationService();
+  final TtsService _tts = TtsService();
+
   int _currentSegmentIndex = 0;
   bool _isRecording = false;
-  bool _showRecordedNotice = false;
+  String? _lastRecordingPath;
+  String? _recorderError;
+  String? _evaluationMessage;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.lesson.videoUrl))
-      ..initialize().then((_) {
-        if (!mounted) return;
-        setState(() => _videoReady = true);
+    _initVideo();
+  }
+
+  Future<void> _initVideo() async {
+    final controller = VideoPlayerController.networkUrl(Uri.parse(widget.lesson.videoUrl));
+    _controller = controller;
+    controller.addListener(_onVideoTick);
+    try {
+      await controller.initialize().timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          throw TimeoutException('Video took too long to load.');
+        },
+      );
+      if (!mounted) return;
+      setState(() => _videoState = _VideoState.ready);
+    } on TimeoutException {
+      if (!mounted) return;
+      setState(() {
+        _videoState = _VideoState.error;
+        _videoErrorMessage = 'The video took too long to load. Check your internet connection and try again.';
       });
-    _controller.addListener(_onVideoTick);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _videoState = _VideoState.error;
+        _videoErrorMessage = 'Could not load the video. Check your internet connection and try again.';
+      });
+    }
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_onVideoTick);
-    _controller.dispose();
+    _controller?.removeListener(_onVideoTick);
+    _controller?.dispose();
     _recorder.dispose();
     super.dispose();
   }
 
   void _onVideoTick() {
-    if (!_videoReady) return;
-    final positionSeconds = _controller.value.position.inMilliseconds / 1000.0;
+    final controller = _controller;
+    if (controller == null || _videoState != _VideoState.ready) return;
+    if (controller.value.hasError) {
+      setState(() {
+        _videoState = _VideoState.error;
+        _videoErrorMessage = 'Playback error. Please try again.';
+      });
+      return;
+    }
+    final positionSeconds = controller.value.position.inMilliseconds / 1000.0;
     final segments = widget.lesson.transcript;
     for (int i = 0; i < segments.length; i++) {
       if (positionSeconds >= segments[i].startTime && positionSeconds < segments[i].endTime) {
@@ -54,50 +98,92 @@ class _LessonScreenState extends State<LessonScreen> {
     }
   }
 
+  Future<void> _retryVideo() async {
+    setState(() => _videoState = _VideoState.loading);
+    await _controller?.dispose();
+    await _initVideo();
+  }
+
   void _togglePlay() {
-    if (!_videoReady) return;
+    final controller = _controller;
+    if (controller == null || _videoState != _VideoState.ready) return;
     setState(() {
-      if (_controller.value.isPlaying) {
-        _controller.pause();
+      if (controller.value.isPlaying) {
+        controller.pause();
       } else {
-        _controller.play();
+        controller.play();
       }
     });
   }
 
   void _seekToSegment(int index) {
-    if (!_videoReady) return;
+    final controller = _controller;
+    if (controller == null || _videoState != _VideoState.ready) return;
     final segment = widget.lesson.transcript[index];
-    _controller.seekTo(Duration(milliseconds: (segment.startTime * 1000).round()));
-    _controller.play();
+    controller.seekTo(Duration(milliseconds: (segment.startTime * 1000).round()));
+    controller.play();
     setState(() => _currentSegmentIndex = index);
   }
 
   void _onWordTap(String word) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(word), duration: const Duration(seconds: 1)),
-    );
+    final clean = word.replaceAll(RegExp(r'[^\w]'), '');
+    showWordDetailsSheet(context, word: clean.isEmpty ? word : clean, tts: _tts);
   }
 
   Future<void> _onRecordPressed() async {
+    if (_isRecording) {
+      final result = await _recorder.stop();
+      if (!mounted) return;
+      setState(() {
+        _isRecording = false;
+        if (result.success) {
+          _lastRecordingPath = result.filePath;
+          _recorderError = null;
+        } else {
+          _recorderError = result.errorMessage;
+          _lastRecordingPath = null;
+        }
+      });
+      if (result.success) {
+        _runEvaluation();
+      }
+      return;
+    }
+
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
       if (!mounted) return;
       _showPermissionDialog();
       return;
     }
-    if (!_isRecording) {
-      await _recorder.start();
-      setState(() {
-        _isRecording = true;
-        _showRecordedNotice = false;
-      });
-    } else {
-      await _recorder.stop();
-      setState(() {
-        _isRecording = false;
-        _showRecordedNotice = true;
-      });
+
+    setState(() {
+      _evaluationMessage = null;
+      _recorderError = null;
+    });
+
+    final result = await _recorder.start();
+    if (!mounted) return;
+    setState(() {
+      _isRecording = result.success;
+      if (!result.success) _recorderError = result.errorMessage;
+    });
+  }
+
+  Future<void> _runEvaluation() async {
+    final path = _lastRecordingPath;
+    if (path == null) return;
+    final segment = widget.lesson.transcript[_currentSegmentIndex];
+    try {
+      final result = await _pronunciationService.evaluate(
+        audioFilePath: path,
+        expectedText: segment.text,
+      );
+      if (!mounted) return;
+      setState(() => _evaluationMessage = result.message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _evaluationMessage = 'Evaluation is currently unavailable.');
     }
   }
 
@@ -141,33 +227,17 @@ class _LessonScreenState extends State<LessonScreen> {
           AspectRatio(
             aspectRatio: 16 / 9,
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.black,
-              ),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.black),
               clipBehavior: Clip.hardEdge,
-              child: _videoReady
-                  ? GestureDetector(
-                      onTap: _togglePlay,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        fit: StackFit.expand,
-                        children: [
-                          VideoPlayer(_controller),
-                          if (!_controller.value.isPlaying)
-                            const Icon(Icons.play_circle_fill_rounded,
-                                color: Colors.white70, size: 56),
-                        ],
-                      ),
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator(color: Colors.white70),
-                    ),
+              child: _buildVideoArea(),
             ),
           ),
+          const SizedBox(height: 12),
+          const Text(
+            'Demo video for playback testing only — not English-learning audio.',
+            style: TextStyle(color: Colors.white38, fontSize: 11),
+          ),
           const SizedBox(height: 20),
-
-          // Current segment card (highlighted)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -188,20 +258,17 @@ class _LessonScreenState extends State<LessonScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(w,
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
                       ),
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: 10),
-                Text(currentSegment.translation,
-                    style: const TextStyle(color: Colors.white70, fontSize: 15)),
+                Text(currentSegment.translation, style: const TextStyle(color: Colors.white70, fontSize: 15)),
               ],
             ),
           ),
           const SizedBox(height: 20),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -222,25 +289,62 @@ class _LessonScreenState extends State<LessonScreen> {
               ),
             ],
           ),
-
-          if (_showRecordedNotice) ...[
-            const SizedBox(height: 20),
+          if (_isRecording) ...[
+            const SizedBox(height: 12),
+            const Center(child: Text('Recording...', style: TextStyle(color: Colors.white70))),
+          ],
+          if (_recorderError != null) ...[
+            const SizedBox(height: 16),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: AppTheme.cardDecoration(radius: 16),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.check_circle_rounded, color: AppTheme.success),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text('Recording saved. Pronunciation evaluation coming soon.'),
+                  const Icon(Icons.error_outline_rounded, color: Colors.redAccent),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(_recorderError!)),
+                ],
+              ),
+            ),
+          ],
+          if (_lastRecordingPath != null && _recorderError == null) ...[
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: AppTheme.cardDecoration(radius: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.check_circle_rounded, color: AppTheme.success),
+                      SizedBox(width: 10),
+                      Expanded(child: Text('Recording saved successfully.')),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(_evaluationMessage ?? 'Evaluation coming soon.',
+                      style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _lastRecordingPath = null;
+                          _evaluationMessage = null;
+                        });
+                      },
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text('Record again'),
+                    ),
                   ),
                 ],
               ),
             ),
           ],
-
           const SizedBox(height: 28),
           const Text('Transcript', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 12),
@@ -258,9 +362,7 @@ class _LessonScreenState extends State<LessonScreen> {
                   decoration: BoxDecoration(
                     color: isActive ? AppTheme.accentPurple.withOpacity(0.2) : AppTheme.surface,
                     borderRadius: BorderRadius.circular(14),
-                    border: isActive
-                        ? Border.all(color: AppTheme.accentPurple, width: 1.2)
-                        : null,
+                    border: isActive ? Border.all(color: AppTheme.accentPurple, width: 1.2) : null,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,9 +374,7 @@ class _LessonScreenState extends State<LessonScreen> {
                       const SizedBox(height: 4),
                       Text(segment.translation,
                           style: TextStyle(
-                              color: isActive
-                                  ? Colors.white70
-                                  : AppTheme.textSecondary.withOpacity(0.7),
+                              color: isActive ? Colors.white70 : AppTheme.textSecondary.withOpacity(0.7),
                               fontSize: 13)),
                     ],
                   ),
@@ -286,6 +386,48 @@ class _LessonScreenState extends State<LessonScreen> {
       ),
     );
   }
+
+  Widget _buildVideoArea() {
+    switch (_videoState) {
+      case _VideoState.loading:
+        return const Center(child: CircularProgressIndicator(color: Colors.white70));
+      case _VideoState.error:
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.wifi_off_rounded, color: Colors.white54, size: 40),
+                const SizedBox(height: 10),
+                Text(_videoErrorMessage,
+                    textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                const SizedBox(height: 14),
+                OutlinedButton.icon(
+                  onPressed: _retryVideo,
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        );
+      case _VideoState.ready:
+        final controller = _controller!;
+        return GestureDetector(
+          onTap: _togglePlay,
+          child: Stack(
+            alignment: Alignment.center,
+            fit: StackFit.expand,
+            children: [
+              VideoPlayer(controller),
+              if (!controller.value.isPlaying)
+                const Icon(Icons.play_circle_fill_rounded, color: Colors.white70, size: 56),
+            ],
+          ),
+        );
+    }
+  }
 }
 
 class _CircleButton extends StatelessWidget {
@@ -294,12 +436,7 @@ class _CircleButton extends StatelessWidget {
   final double size;
   final VoidCallback onTap;
 
-  const _CircleButton({
-    required this.icon,
-    required this.gradient,
-    required this.size,
-    required this.onTap,
-  });
+  const _CircleButton({required this.icon, required this.gradient, required this.size, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -311,9 +448,7 @@ class _CircleButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: gradient,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(color: AppTheme.accentPurple.withOpacity(0.4), blurRadius: 18, spreadRadius: 1),
-          ],
+          boxShadow: [BoxShadow(color: AppTheme.accentPurple.withOpacity(0.4), blurRadius: 18, spreadRadius: 1)],
         ),
         child: Icon(icon, color: Colors.white, size: size * 0.42),
       ),
