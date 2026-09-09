@@ -254,7 +254,7 @@ class _LessonScreenState extends State<LessonScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
+                          color: Colors.white.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(w,
@@ -360,7 +360,7 @@ class _LessonScreenState extends State<LessonScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isActive ? AppTheme.accentPurple.withOpacity(0.2) : AppTheme.surface,
+                    color: isActive ? AppTheme.accentPurple.withValues(alpha: 0.2) : AppTheme.surface,
                     borderRadius: BorderRadius.circular(14),
                     border: isActive ? Border.all(color: AppTheme.accentPurple, width: 1.2) : null,
                   ),
@@ -374,7 +374,7 @@ class _LessonScreenState extends State<LessonScreen> {
                       const SizedBox(height: 4),
                       Text(segment.translation,
                           style: TextStyle(
-                              color: isActive ? Colors.white70 : AppTheme.textSecondary.withOpacity(0.7),
+                              color: isActive ? Colors.white70 : AppTheme.textSecondary.withValues(alpha: 0.7),
                               fontSize: 13)),
                     ],
                   ),
@@ -448,7 +448,7 @@ class _CircleButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: gradient,
           shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: AppTheme.accentPurple.withOpacity(0.4), blurRadius: 18, spreadRadius: 1)],
+          boxShadow: [BoxShadow(color: AppTheme.accentPurple.withValues(alpha: 0.4), blurRadius: 18, spreadRadius: 1)],
         ),
         child: Icon(icon, color: Colors.white, size: size * 0.42),
       ),
