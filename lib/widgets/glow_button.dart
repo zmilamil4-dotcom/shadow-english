@@ -42,7 +42,7 @@ class _GlowButtonState extends State<GlowButton> {
             borderRadius: BorderRadius.circular(AppRadius.md),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.accentPurple.withOpacity(0.35),
+                color: AppTheme.accentPurple.withValues(alpha: 0.35),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -104,7 +104,7 @@ class _GlowIconButtonState extends State<GlowIconButton> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppTheme.accentPurple.withOpacity(0.4),
+                color: AppTheme.accentPurple.withValues(alpha: 0.4),
                 blurRadius: 20,
                 spreadRadius: 1,
               ),
