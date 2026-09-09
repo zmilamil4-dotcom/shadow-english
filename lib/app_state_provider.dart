@@ -6,6 +6,10 @@ class AppStateProvider extends ChangeNotifier {
   int totalTrained = 0;
   int streakDays = 1;
 
+  // Compatibility field for the legacy ResultsTab (not wired into the
+  // current bottom navigation, but still present in the project).
+  bool lastAttemptSuccess = false;
+
   void setTab(int index) {
     tabIndex = index;
     notifyListeners();
@@ -18,6 +22,7 @@ class AppStateProvider extends ChangeNotifier {
 
   void nextSentence(int totalSentences) {
     sentenceIndex = (sentenceIndex + 1) % totalSentences;
+    lastAttemptSuccess = false;
     notifyListeners();
   }
 
@@ -28,6 +33,13 @@ class AppStateProvider extends ChangeNotifier {
 
   void recordCompleted() {
     totalTrained++;
+    lastAttemptSuccess = true;
+    notifyListeners();
+  }
+
+  // Compatibility method for the legacy ResultsTab.
+  void tryAgain() {
+    lastAttemptSuccess = false;
     notifyListeners();
   }
 }
