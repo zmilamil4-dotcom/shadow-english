@@ -50,7 +50,7 @@ class _BottomBar extends StatelessWidget {
           topRight: Radius.circular(28),
         ),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 20, offset: const Offset(0, -6)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, -6)),
         ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -128,7 +128,7 @@ class _MicNavItem extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppTheme.accentPurple.withOpacity(selected ? 0.6 : 0.35),
+                color: AppTheme.accentPurple.withValues(alpha: selected ? 0.6 : 0.35),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
