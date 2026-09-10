@@ -8,6 +8,8 @@ import 'learn_tab.dart';
 import 'practice_tab.dart';
 import 'progress_tab.dart';
 import 'profile_tab.dart';
+import 'widgets/echo_background.dart';
+import 'widgets/glow_button.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -29,7 +31,9 @@ class MainScreen extends StatelessWidget {
       textDirection: locale == 'ar' ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         extendBody: true,
-        body: IndexedStack(index: appState.tabIndex, children: tabs),
+        body: EchoBackground(
+          child: IndexedStack(index: appState.tabIndex, children: tabs),
+        ),
         bottomNavigationBar: _BottomBar(appState: appState),
       ),
     );
@@ -44,16 +48,19 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: AppTheme.surface.withValues(alpha: 0.85),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(28),
-          topRight: Radius.circular(28),
+          topLeft: Radius.circular(AppRadius.xl),
+          topRight: Radius.circular(AppRadius.xl),
+        ),
+        border: const Border(
+          top: BorderSide(color: Colors.white12, width: 1),
         ),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, -6)),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
       child: SafeArea(
         top: false,
         child: SizedBox(
@@ -93,7 +100,7 @@ class _NavItem extends StatelessWidget {
     final color = selected ? AppTheme.accentPurple : AppTheme.textSecondary;
     return InkWell(
       onTap: () => appState.setTab(index),
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         child: Column(
@@ -115,27 +122,13 @@ class _MicNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selected = appState.tabIndex == 2;
-    return GestureDetector(
-      onTap: () => appState.setTab(2),
-      child: Transform.translate(
-        offset: const Offset(0, -18),
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.accentPurple.withValues(alpha: selected ? 0.6 : 0.35),
-                blurRadius: 20,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: const Icon(Icons.mic_rounded, color: Colors.white, size: 30),
-        ),
+    return Transform.translate(
+      offset: const Offset(0, -18),
+      child: GlowIconButton(
+        icon: Icons.mic_rounded,
+        size: 60,
+        gradient: AppTheme.primaryGradient,
+        onTap: () => appState.setTab(2),
       ),
     );
   }
