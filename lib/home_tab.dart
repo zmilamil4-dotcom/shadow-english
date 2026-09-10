@@ -7,6 +7,7 @@ import 'app_theme.dart';
 import 'lesson_model.dart';
 import 'lesson_repository.dart';
 import 'lesson_screen.dart';
+import 'screens/camera_capture_screen.dart';
 import 'widgets/echo_background.dart';
 import 'widgets/glass_card.dart';
 import 'widgets/glow_button.dart';
@@ -60,6 +61,24 @@ class _HomeTabState extends State<HomeTab> {
                     ],
                   ),
                 ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const CameraCaptureScreen()),
+                    );
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceVariant,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white12),
+                    ),
+                    child: const Icon(Icons.camera_alt_rounded, color: Colors.white70, size: 20),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Icon(Icons.notifications_none_rounded, color: AppTheme.textSecondary),
               ],
             ),
