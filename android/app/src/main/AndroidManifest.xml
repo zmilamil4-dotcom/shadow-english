@@ -3,6 +3,12 @@
     <!-- Allow the app to access videos and other online content -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Allow the app to record audio for Shadowing practice -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <!-- Allow the app to use the camera for text scanning -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <application
         android:label="echo_speak"
         android:name="${applicationName}"
