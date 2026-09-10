@@ -8,6 +8,8 @@ import 'pronunciation_service.dart';
 import 'tts_service.dart';
 import 'word_details_sheet.dart';
 import 'app_theme.dart';
+import 'widgets/echo_background.dart';
+import 'widgets/glass_card.dart';
 
 enum _VideoState { loading, ready, error }
 
@@ -221,168 +223,167 @@ class _LessonScreenState extends State<LessonScreen> {
         elevation: 0,
         title: Text(widget.lesson.title),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-        children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Container(
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.black),
-              clipBehavior: Clip.hardEdge,
-              child: _buildVideoArea(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Demo video for playback testing only — not English-learning audio.',
-            style: TextStyle(color: Colors.white38, fontSize: 11),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: AppTheme.glowDecoration(gradient: AppTheme.primaryGradient, radius: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 8,
-                  children: words.map((w) {
-                    return GestureDetector(
-                      onTap: () => _onWordTap(w),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(w,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 10),
-                Text(currentSegment.translation, style: const TextStyle(color: Colors.white70, fontSize: 15)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _CircleButton(
-                icon: Icons.replay_rounded,
-                gradient: AppTheme.primaryGradient,
-                size: 56,
-                onTap: () => _seekToSegment(_currentSegmentIndex),
+      body: EchoBackground(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.black),
+                clipBehavior: Clip.hardEdge,
+                child: _buildVideoArea(),
               ),
-              const SizedBox(width: 24),
-              _CircleButton(
-                icon: _isRecording ? Icons.stop_rounded : Icons.mic_rounded,
-                gradient: _isRecording
-                    ? const LinearGradient(colors: [Color(0xFFEF4444), Color(0xFFF59E0B)])
-                    : AppTheme.pinkGradient,
-                size: 78,
-                onTap: _onRecordPressed,
-              ),
-            ],
-          ),
-          if (_isRecording) ...[
+            ),
             const SizedBox(height: 12),
-            const Center(child: Text('Recording...', style: TextStyle(color: Colors.white70))),
-          ],
-          if (_recorderError != null) ...[
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: AppTheme.cardDecoration(radius: 16),
-              child: Row(
-                children: [
-                  const Icon(Icons.error_outline_rounded, color: Colors.redAccent),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(_recorderError!)),
-                ],
-              ),
+            const Text(
+              'Demo video for playback testing only — not English-learning audio.',
+              style: TextStyle(color: Colors.white38, fontSize: 11),
             ),
-          ],
-          if (_lastRecordingPath != null && _recorderError == null) ...[
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: AppTheme.cardDecoration(radius: 16),
+            const SizedBox(height: 20),
+            GlassCard(
+              radius: AppRadius.xl,
+              gradient: AppTheme.primaryGradient,
+              glow: true,
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
-                    children: [
-                      Icon(Icons.check_circle_rounded, color: AppTheme.success),
-                      SizedBox(width: 10),
-                      Expanded(child: Text('Recording saved successfully.')),
-                    ],
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 8,
+                    children: words.map((w) {
+                      return GestureDetector(
+                        onTap: () => _onWordTap(w),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(w,
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                  const SizedBox(height: 6),
-                  Text(_evaluationMessage ?? 'Evaluation coming soon.',
-                      style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
                   const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _lastRecordingPath = null;
-                          _evaluationMessage = null;
-                        });
-                      },
-                      icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Record again'),
-                    ),
-                  ),
+                  Text(currentSegment.translation, style: const TextStyle(color: Colors.white70, fontSize: 15)),
                 ],
               ),
             ),
-          ],
-          const SizedBox(height: 28),
-          const Text('Transcript', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 12),
-          ...List.generate(segments.length, (i) {
-            final segment = segments[i];
-            final isActive = i == _currentSegmentIndex;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: InkWell(
-                onTap: () => _seekToSegment(i),
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: isActive ? AppTheme.accentPurple.withValues(alpha: 0.2) : AppTheme.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: isActive ? Border.all(color: AppTheme.accentPurple, width: 1.2) : null,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(segment.text,
-                          style: TextStyle(
-                              color: isActive ? Colors.white : AppTheme.textSecondary,
-                              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal)),
-                      const SizedBox(height: 4),
-                      Text(segment.translation,
-                          style: TextStyle(
-                              color: isActive ? Colors.white70 : AppTheme.textSecondary.withValues(alpha: 0.7),
-                              fontSize: 13)),
-                    ],
-                  ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _CircleButton(
+                  icon: Icons.replay_rounded,
+                  gradient: AppTheme.primaryGradient,
+                  size: 56,
+                  onTap: () => _seekToSegment(_currentSegmentIndex),
+                ),
+                const SizedBox(width: 24),
+                _CircleButton(
+                  icon: _isRecording ? Icons.stop_rounded : Icons.mic_rounded,
+                  gradient: _isRecording
+                      ? const LinearGradient(colors: [Color(0xFFEF4444), Color(0xFFF59E0B)])
+                      : AppTheme.pinkGradient,
+                  size: 78,
+                  onTap: _onRecordPressed,
+                ),
+              ],
+            ),
+            if (_isRecording) ...[
+              const SizedBox(height: 12),
+              const Center(child: Text('Recording...', style: TextStyle(color: Colors.white70))),
+            ],
+            if (_recorderError != null) ...[
+              const SizedBox(height: 16),
+              GlassCard(
+                radius: AppRadius.md,
+                child: Row(
+                  children: [
+                    const Icon(Icons.error_outline_rounded, color: Colors.redAccent),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(_recorderError!)),
+                  ],
                 ),
               ),
-            );
-          }),
-        ],
+            ],
+            if (_lastRecordingPath != null && _recorderError == null) ...[
+              const SizedBox(height: 16),
+              GlassCard(
+                radius: AppRadius.md,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.check_circle_rounded, color: AppTheme.success),
+                        SizedBox(width: 10),
+                        Expanded(child: Text('Recording saved successfully.')),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(_evaluationMessage ?? 'Evaluation coming soon.',
+                        style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _lastRecordingPath = null;
+                            _evaluationMessage = null;
+                          });
+                        },
+                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                        label: const Text('Record again'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 28),
+            const Text('Transcript', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 12),
+            ...List.generate(segments.length, (i) {
+              final segment = segments[i];
+              final isActive = i == _currentSegmentIndex;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: InkWell(
+                  onTap: () => _seekToSegment(i),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isActive ? AppTheme.accentPurple.withValues(alpha: 0.2) : AppTheme.surface,
+                      borderRadius: BorderRadius.circular(14),
+                      border: isActive ? Border.all(color: AppTheme.accentPurple, width: 1.2) : null,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(segment.text,
+                            style: TextStyle(
+                                color: isActive ? Colors.white : AppTheme.textSecondary,
+                                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal)),
+                        const SizedBox(height: 4),
+                        Text(segment.translation,
+                            style: TextStyle(
+                                color: isActive ? Colors.white70 : AppTheme.textSecondary.withValues(alpha: 0.7),
+                                fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
