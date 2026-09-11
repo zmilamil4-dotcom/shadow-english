@@ -240,6 +240,13 @@ class _LessonScreenState extends State<LessonScreen> {
               'Demo video for playback testing only — not English-learning audio.',
               style: TextStyle(color: Colors.white38, fontSize: 11),
             ),
+            if (widget.lesson.sourceUrl != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Topic inspired by: ${widget.lesson.sourceUrl}',
+                style: const TextStyle(color: Colors.white38, fontSize: 11),
+              ),
+            ],
             const SizedBox(height: 20),
             GlassCard(
               radius: AppRadius.xl,
