@@ -21,6 +21,7 @@ class LessonModel {
   final String videoUrl;
   final int durationSeconds;
   final String? thumbnailUrl;
+  final String? sourceUrl; // reference/inspiration source, not embedded content
   final List<TranscriptSegment> transcript;
 
   const LessonModel({
@@ -32,6 +33,7 @@ class LessonModel {
     required this.videoUrl,
     required this.durationSeconds,
     this.thumbnailUrl,
+    this.sourceUrl,
     required this.transcript,
   });
 }
