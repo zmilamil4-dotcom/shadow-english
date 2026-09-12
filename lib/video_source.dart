@@ -1,43 +1,17 @@
-import 'video_source.dart';
+enum VideoSourceType { mp4, youtube }
 
-class TranscriptSegment {
-  final double startTime; // seconds
-  final double endTime; // seconds
-  final String text; // English text
-  final String translation; // Arabic translation
+/// Abstraction over where a lesson's video comes from, so LessonScreen
+/// does not need to know playback details for each provider.
+class VideoSource {
+  final VideoSourceType type;
+  final String? url; // used when type == mp4
+  final String? youtubeVideoId; // used when type == youtube
 
-  const TranscriptSegment({
-    required this.startTime,
-    required this.endTime,
-    required this.text,
-    required this.translation,
-  });
-}
+  const VideoSource.mp4(String this.url)
+      : type = VideoSourceType.mp4,
+        youtubeVideoId = null;
 
-class LessonModel {
-  final String id;
-  final String title;
-  final String level; // A1, A2, B1, B2, C1
-  final String category;
-  final String description;
-  final String videoUrl; // legacy mp4 field, kept for backward compatibility
-  final int durationSeconds;
-  final String? thumbnailUrl;
-  final String? sourceUrl; // reference/inspiration source, not embedded content
-  final VideoSource? videoSource; // when set, takes priority over videoUrl
-  final List<TranscriptSegment> transcript;
-
-  const LessonModel({
-    required this.id,
-    required this.title,
-    required this.level,
-    required this.category,
-    required this.description,
-    required this.videoUrl,
-    required this.durationSeconds,
-    this.thumbnailUrl,
-    this.sourceUrl,
-    this.videoSource,
-    required this.transcript,
-  });
+  const VideoSource.youtube(String this.youtubeVideoId)
+      : type = VideoSourceType.youtube,
+        url = null;
 }
