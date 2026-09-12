@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'lesson_model.dart';
+import 'video_source.dart';
 import 'recorder_service.dart';
 import 'pronunciation_service.dart';
 import 'tts_service.dart';
@@ -22,7 +24,8 @@ class LessonScreen extends StatefulWidget {
 }
 
 class _LessonScreenState extends State<LessonScreen> {
-  VideoPlayerController? _controller;
+  VideoPlayerController? _mp4Controller;
+  YoutubePlayerController? _youtubeController;
   _VideoState _videoState = _VideoState.loading;
   String _videoErrorMessage = '';
 
@@ -36,6 +39,8 @@ class _LessonScreenState extends State<LessonScreen> {
   String? _recorderError;
   String? _evaluationMessage;
 
+  bool get _isYoutube => widget.lesson.videoSource?.type == VideoSourceType.youtube;
+
   @override
   void initState() {
     super.initState();
@@ -43,8 +48,31 @@ class _LessonScreenState extends State<LessonScreen> {
   }
 
   Future<void> _initVideo() async {
+    if (_isYoutube) {
+      final videoId = widget.lesson.videoSource!.youtubeVideoId!;
+      try {
+        _youtubeController = YoutubePlayerController.fromVideoId(
+          videoId: videoId,
+          autoPlay: false,
+          params: const YoutubePlayerParams(
+            showControls: true,
+            showFullscreenButton: true,
+          ),
+        );
+        if (!mounted) return;
+        setState(() => _videoState = _VideoState.ready);
+      } catch (_) {
+        if (!mounted) return;
+        setState(() {
+          _videoState = _VideoState.error;
+          _videoErrorMessage = 'Could not load the YouTube video. Check your internet connection.';
+        });
+      }
+      return;
+    }
+
     final controller = VideoPlayerController.networkUrl(Uri.parse(widget.lesson.videoUrl));
-    _controller = controller;
+    _mp4Controller = controller;
     controller.addListener(_onVideoTick);
     try {
       await controller.initialize().timeout(
@@ -72,14 +100,17 @@ class _LessonScreenState extends State<LessonScreen> {
 
   @override
   void dispose() {
-    _controller?.removeListener(_onVideoTick);
-    _controller?.dispose();
+    _mp4Controller?.removeListener(_onVideoTick);
+    _mp4Controller?.dispose();
+    try {
+      _youtubeController?.close();
+    } catch (_) {}
     _recorder.dispose();
     super.dispose();
   }
 
   void _onVideoTick() {
-    final controller = _controller;
+    final controller = _mp4Controller;
     if (controller == null || _videoState != _VideoState.ready) return;
     if (controller.value.hasError) {
       setState(() {
@@ -102,12 +133,13 @@ class _LessonScreenState extends State<LessonScreen> {
 
   Future<void> _retryVideo() async {
     setState(() => _videoState = _VideoState.loading);
-    await _controller?.dispose();
+    await _mp4Controller?.dispose();
+    _mp4Controller = null;
     await _initVideo();
   }
 
   void _togglePlay() {
-    final controller = _controller;
+    final controller = _mp4Controller;
     if (controller == null || _videoState != _VideoState.ready) return;
     setState(() {
       if (controller.value.isPlaying) {
@@ -119,9 +151,20 @@ class _LessonScreenState extends State<LessonScreen> {
   }
 
   void _seekToSegment(int index) {
-    final controller = _controller;
-    if (controller == null || _videoState != _VideoState.ready) return;
     final segment = widget.lesson.transcript[index];
+    if (_isYoutube) {
+      try {
+        _youtubeController?.seekTo(
+          seconds: segment.startTime,
+          allowSeekAhead: true,
+        );
+        _youtubeController?.playVideo();
+      } catch (_) {}
+      setState(() => _currentSegmentIndex = index);
+      return;
+    }
+    final controller = _mp4Controller;
+    if (controller == null || _videoState != _VideoState.ready) return;
     controller.seekTo(Duration(milliseconds: (segment.startTime * 1000).round()));
     controller.play();
     setState(() => _currentSegmentIndex = index);
@@ -236,17 +279,11 @@ class _LessonScreenState extends State<LessonScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Demo video for playback testing only — not English-learning audio.',
-              style: TextStyle(color: Colors.white38, fontSize: 11),
-            ),
-            if (widget.lesson.sourceUrl != null) ...[
-              const SizedBox(height: 4),
+            if (widget.lesson.sourceUrl != null)
               Text(
-                'Topic inspired by: ${widget.lesson.sourceUrl}',
+                'Source: ${widget.lesson.sourceUrl}',
                 style: const TextStyle(color: Colors.white38, fontSize: 11),
               ),
-            ],
             const SizedBox(height: 20),
             GlassCard(
               radius: AppRadius.xl,
@@ -332,7 +369,7 @@ class _LessonScreenState extends State<LessonScreen> {
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Text(_evaluationMessage ?? 'Evaluation coming soon.',
+                    Text(_evaluationMessage ?? 'Pronunciation analysis unavailable.',
                         style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
                     const SizedBox(height: 10),
                     Align(
@@ -421,7 +458,10 @@ class _LessonScreenState extends State<LessonScreen> {
           ),
         );
       case _VideoState.ready:
-        final controller = _controller!;
+        if (_isYoutube) {
+          return YoutubePlayer(controller: _youtubeController!);
+        }
+        final controller = _mp4Controller!;
         return GestureDetector(
           onTap: _togglePlay,
           child: Stack(
